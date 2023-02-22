@@ -6,9 +6,15 @@ import Row from "react-bootstrap/Row";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
+import { useStateContext } from "../contexts/ContextProvider";
 
 function FormInput() {
+  const { screenSize } = useStateContext();
   const [input1, setInput1] = useState("");
+
+  const textRight = {
+    textAlign: screenSize >= 650 && "right"
+  };
 
   return (
     <Container>
@@ -170,7 +176,3 @@ function FormInput() {
 }
 
 export default FormInput;
-
-const textRight = {
-  textAlign: "right"
-};
