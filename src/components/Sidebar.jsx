@@ -1,4 +1,6 @@
-import { Link, NavLink } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
 import {
   ProSidebar,
   Menu,
@@ -6,30 +8,34 @@ import {
   SubMenu,
   SidebarHeader,
   SidebarFooter,
-  SidebarContent
+  SidebarContent,
 } from "react-pro-sidebar";
 import {
-  FaUser,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
-  FaTachometerAlt,
-  FaGem,
-  FaList,
-  FaRegLaughWink,
-  FaHeart
+  FaBook,
+  FaUserCog,
+  FaWarehouse,
+  FaSignOutAlt,
 } from "react-icons/fa";
-import sidebarBg from "../assets/bg1.jpg";
 
 const Sidebar = ({
-  image,
   collapsed,
   toggled,
   handleToggleSidebar,
-  handleCollapsedChange
+  handleCollapsedChange,
 }) => {
+  const { user, setting, dispatch } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const logoutButtonHandler = async (e) => {
+    e.preventDefault();
+    dispatch({ type: "LOGOUT" });
+    navigate("/");
+  };
+
   return (
     <ProSidebar
-      image={image ? sidebarBg : false}
       collapsed={collapsed}
       toggled={toggled}
       onToggle={handleToggleSidebar}
@@ -54,10 +60,10 @@ const Sidebar = ({
                   textTransform: "uppercase",
                   fontWeight: "bold",
                   fontSize: 15,
-                  letterSpacing: "1px"
+                  letterSpacing: "1px",
                 }}
               >
-                Sidebar TechKu
+                {setting.namaProgram} {setting.namaJenisProgram}
               </div>
             </MenuItem>
           )}
@@ -66,55 +72,105 @@ const Sidebar = ({
       {/* Content */}
       <SidebarContent>
         <Menu iconShape="circle">
-          <MenuItem
-            icon={<FaTachometerAlt />}
-            suffix={<span className="badge red">NEW</span>}
-          >
-            Form Input
-            <NavLink to="/formInput" />
-          </MenuItem>
-          {/* <MenuItem icon={<FaGem />}>Components </MenuItem> */}
-          <MenuItem icon={<FaGem />}>
-            Login <Link to="/login" />
-          </MenuItem>
-          <SubMenu
-            suffix={<span className="badge yellow">3</span>}
-            title={"With Suffix"}
-            icon={<FaRegLaughWink />}
-          >
-            <MenuItem>Submenu 1</MenuItem>
-            <MenuItem>Submenu 2</MenuItem>
-            <MenuItem>Submenu 3</MenuItem>
+          <SubMenu title={"Master"} icon={<FaBook />}>
+            {user.akses.kategori === true && (
+              <MenuItem>
+                Kategori <NavLink to="/kategori" />
+              </MenuItem>
+            )}
+            {user.akses.barang === true && (
+              <MenuItem>
+                Barang <NavLink to="/barang" />
+              </MenuItem>
+            )}
+            {user.akses.supplier === true && (
+              <MenuItem>
+                Supplier <NavLink to="/supplier" />
+              </MenuItem>
+            )}
+            {user.akses.pelanggan === true && (
+              <MenuItem>
+                Pelanggan <NavLink to="/pelanggan" />
+              </MenuItem>
+            )}
+            {user.akses.cabang === true && (
+              <MenuItem>
+                Cabang <NavLink to="/cabang" />
+              </MenuItem>
+            )}
           </SubMenu>
-          <SubMenu
-            prefix={<span className="badge gray">3</span>}
-            title={"With Prefix"}
-            icon={<FaHeart />}
-          >
-            <MenuItem>Submenu 1</MenuItem>
-            <MenuItem>Submenu 2</MenuItem>
-            <MenuItem>Submenu 3</MenuItem>
-          </SubMenu>
-          <SubMenu title={"Multi Level"} icon={<FaList />}>
-            <MenuItem>Submenu 1 </MenuItem>
-            <MenuItem>Submenu 2 </MenuItem>
-            <SubMenu title={"Submenu 3"}>
-              <MenuItem>Submenu 3.1 </MenuItem>
-              <MenuItem>Submenu 3.2 </MenuItem>
+          <SubMenu title={"Stok"} icon={<FaWarehouse />}>
+            <SubMenu title={"Gudang"}>
+              <MenuItem>
+                Daftar Stok <NavLink to="/stokGudang" />
+              </MenuItem>
+              <MenuItem>
+                Koreksi Stok <NavLink to="/koreksiStokGudang" />
+              </MenuItem>
             </SubMenu>
+            <SubMenu title={"Toko"}>
+              <MenuItem>
+                Daftar Stok <NavLink to="/stokToko" />
+              </MenuItem>
+              <MenuItem>
+                Koreksi Stok <NavLink to="/koreksiStokToko" />
+              </MenuItem>
+            </SubMenu>
+            {user.akses.transferStok === true && (
+              <MenuItem>
+                Transfer Stok <NavLink to="/transferStok" />
+              </MenuItem>
+            )}
+          </SubMenu>
+          <SubMenu title={"Pembelian"} icon={<FaUserCog />}>
+            {user.akses.profilUser === true && (
+              <MenuItem>
+                Beli <NavLink to="/pembelian" />
+              </MenuItem>
+            )}
+          </SubMenu>
+          <SubMenu title={"Utility"} icon={<FaUserCog />}>
+            {user.akses.profilUser === true && (
+              <MenuItem>
+                Profil User <NavLink to="/profilUser" />
+              </MenuItem>
+            )}
+            {user.akses.daftarUser === true && (
+              <MenuItem>
+                Daftar User <NavLink to="/daftarUser" />
+              </MenuItem>
+            )}
+            {user.akses.tutupPeriode === true && (
+              <MenuItem>
+                Tutup Periode
+                <NavLink to="/tutupPeriode" />
+              </MenuItem>
+            )}
+            {user.akses.gantiPeriode === true && (
+              <MenuItem>
+                Ganti Periode <NavLink to="/gantiPeriode" />
+              </MenuItem>
+            )}
+            {user.akses.setting === true && (
+              <MenuItem>
+                Setting <NavLink to="/setting" />
+              </MenuItem>
+            )}
           </SubMenu>
         </Menu>
       </SidebarContent>
       {/* Footer */}
       <SidebarFooter style={{ textAlign: "center" }}>
-        <div className="sidebar-btn-wrapper" style={{ padding: "16px" }}>
+        <p style={{ fontSize: "12px", marginTop: "10px" }}>{user.username}</p>
+        <div className="sidebar-btn-wrapper" style={{ paddingBottom: "10px" }}>
           <Link
             className="sidebar-btn"
             style={{ cursor: "pointer" }}
-            to="/profile"
+            to="/"
+            onClick={logoutButtonHandler}
           >
-            <FaUser />
-            <span>My Account</span>
+            <span style={{ marginRight: "6px" }}>Logout</span>
+            <FaSignOutAlt />
           </Link>
         </div>
       </SidebarFooter>

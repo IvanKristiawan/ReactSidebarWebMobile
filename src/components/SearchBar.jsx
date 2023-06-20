@@ -8,15 +8,15 @@ const Search = styled("div")(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   backgroundColor: alpha(theme.palette.common.white, 0.15),
   "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25)
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
   marginLeft: 0,
   width: "100%",
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
-    width: "auto"
+    width: "auto",
   },
-  border: "1px solid #1769aa"
+  border: "1px solid #1769aa",
 }));
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
@@ -26,7 +26,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   pointerEvents: "none",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center"
+  justifyContent: "center",
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -35,15 +35,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("sm")]: {
-      width: "40ch",
-      "&:focus": {
-        width: "50ch"
-      }
-    }
-  }
+      width: "50ch",
+    },
+  },
 }));
 
 function SearchBar({ setSearchTerm }) {
@@ -53,9 +49,11 @@ function SearchBar({ setSearchTerm }) {
         <SearchIcon />
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder="Search…"
-        inputProps={{ "aria-label": "search" }}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        inputProps={
+          ({ "aria-label": "search" },
+          { style: { textTransform: "uppercase" } })
+        }
+        onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
       />
     </Search>
   );
