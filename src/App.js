@@ -15,6 +15,21 @@ import {
   UbahSetting,
   TutupPeriode,
   TampilGantiPeriode,
+  TampilKategori,
+  UbahKategori,
+  TambahKategori,
+  TampilBarang,
+  UbahBarang,
+  TambahBarang,
+  TampilSupplier,
+  UbahSupplier,
+  TambahSupplier,
+  TampilPelanggan,
+  UbahPelanggan,
+  TambahPelanggan,
+  TampilCabang,
+  UbahCabang,
+  TambahCabang,
 } from "./pages/index";
 import { FaBars } from "react-icons/fa";
 
@@ -86,6 +101,56 @@ const App = () => {
     const { user } = useContext(AuthContext);
 
     if (user.akses.gantiPeriode) {
+      return children;
+    }
+
+    return <Navigate to="/unauthorized" />;
+  };
+
+  const KATEGORIRoute = ({ children }) => {
+    const { user } = useContext(AuthContext);
+
+    if (user.akses.kategori) {
+      return children;
+    }
+
+    return <Navigate to="/unauthorized" />;
+  };
+
+  const BARANGRoute = ({ children }) => {
+    const { user } = useContext(AuthContext);
+
+    if (user.akses.barang) {
+      return children;
+    }
+
+    return <Navigate to="/unauthorized" />;
+  };
+
+  const SUPPLIERRoute = ({ children }) => {
+    const { user } = useContext(AuthContext);
+
+    if (user.akses.supplier) {
+      return children;
+    }
+
+    return <Navigate to="/unauthorized" />;
+  };
+
+  const PELANGGANRoute = ({ children }) => {
+    const { user } = useContext(AuthContext);
+
+    if (user.akses.pelanggan) {
+      return children;
+    }
+
+    return <Navigate to="/unauthorized" />;
+  };
+
+  const CABANGRoute = ({ children }) => {
+    const { user } = useContext(AuthContext);
+
+    if (user.akses.cabang) {
       return children;
     }
 
@@ -212,6 +277,171 @@ const App = () => {
               <GANTIPERIODERoute>
                 <TampilGantiPeriode />
               </GANTIPERIODERoute>
+            }
+          />
+          {/* Kategori */}
+          <Route
+            path="/kategori"
+            element={
+              <KATEGORIRoute>
+                <TampilKategori />
+              </KATEGORIRoute>
+            }
+          />
+          <Route
+            path="/kategori/:id"
+            element={
+              <KATEGORIRoute>
+                <TampilKategori />
+              </KATEGORIRoute>
+            }
+          />
+          <Route
+            path="/kategori/:id/edit"
+            element={
+              <KATEGORIRoute>
+                <UbahKategori />
+              </KATEGORIRoute>
+            }
+          />
+          <Route
+            path="/kategori/tambahKategori"
+            element={
+              <KATEGORIRoute>
+                <TambahKategori />
+              </KATEGORIRoute>
+            }
+          />
+          {/* Barang */}
+          <Route
+            path="/barang"
+            element={
+              <BARANGRoute>
+                <TampilBarang />
+              </BARANGRoute>
+            }
+          />
+          <Route
+            path="/barang/:id"
+            element={
+              <BARANGRoute>
+                <TampilBarang />
+              </BARANGRoute>
+            }
+          />
+          <Route
+            path="/barang/:id/edit"
+            element={
+              <BARANGRoute>
+                <UbahBarang />
+              </BARANGRoute>
+            }
+          />
+          <Route
+            path="/barang/tambahBarang"
+            element={
+              <BARANGRoute>
+                <TambahBarang />
+              </BARANGRoute>
+            }
+          />
+          {/* Supplier */}
+          <Route
+            path="/supplier"
+            element={
+              <SUPPLIERRoute>
+                <TampilSupplier />
+              </SUPPLIERRoute>
+            }
+          />
+          <Route
+            path="/supplier/:id"
+            element={
+              <SUPPLIERRoute>
+                <TampilSupplier />
+              </SUPPLIERRoute>
+            }
+          />
+          <Route
+            path="/supplier/:id/edit"
+            element={
+              <SUPPLIERRoute>
+                <UbahSupplier />
+              </SUPPLIERRoute>
+            }
+          />
+          <Route
+            path="/supplier/tambahSupplier"
+            element={
+              <SUPPLIERRoute>
+                <TambahSupplier />
+              </SUPPLIERRoute>
+            }
+          />
+          {/* Pelanggan */}
+          <Route
+            path="/pelanggan"
+            element={
+              <PELANGGANRoute>
+                <TampilPelanggan />
+              </PELANGGANRoute>
+            }
+          />
+          <Route
+            path="/pelanggan/:id"
+            element={
+              <PELANGGANRoute>
+                <TampilPelanggan />
+              </PELANGGANRoute>
+            }
+          />
+          <Route
+            path="/pelanggan/:id/edit"
+            element={
+              <PELANGGANRoute>
+                <UbahPelanggan />
+              </PELANGGANRoute>
+            }
+          />
+          <Route
+            path="/pelanggan/tambahPelanggan"
+            element={
+              <PELANGGANRoute>
+                <TambahPelanggan />
+              </PELANGGANRoute>
+            }
+          />
+          {/* Cabang */}
+          <Route
+            path="/cabang"
+            element={
+              <CABANGRoute>
+                <TampilCabang />
+              </CABANGRoute>
+            }
+          />
+          <Route
+            path="/cabang/:id"
+            element={
+              <CABANGRoute>
+                <TampilCabang />
+              </CABANGRoute>
+            }
+          />
+          <Route
+            path="/cabang/:id/edit"
+            element={
+              <CABANGRoute>
+                <UbahCabang />
+              </CABANGRoute>
+            }
+          />
+          <Route
+            path="/cabang/tambahCabang"
+            element={
+              <CABANGRoute>
+                <TambahCabang />
+              </CABANGRoute>
             }
           />
         </Routes>

@@ -207,6 +207,7 @@ const UbahUser = () => {
               gantiPeriode,
             },
             cabangId: kodeCabang.split(" -", 1)[0],
+            userIdUpdate: user.id,
             _id: user.id,
             token: user.token,
           });

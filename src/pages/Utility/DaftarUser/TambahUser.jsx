@@ -173,6 +173,7 @@ const TambahUser = () => {
               gantiPeriode,
             },
             cabangId: kodeCabang.split(" -", 1)[0],
+            userIdInput: user.id,
             _id: user.id,
             token: user.token,
           });

@@ -17,6 +17,7 @@ import {
   FaUserCog,
   FaWarehouse,
   FaSignOutAlt,
+  FaShoppingCart,
 } from "react-icons/fa";
 
 const Sidebar = ({
@@ -122,7 +123,7 @@ const Sidebar = ({
               </MenuItem>
             )}
           </SubMenu>
-          <SubMenu title={"Pembelian"} icon={<FaUserCog />}>
+          <SubMenu title={"Pembelian"} icon={<FaShoppingCart />}>
             {user.akses.profilUser === true && (
               <MenuItem>
                 Beli <NavLink to="/pembelian" />
@@ -162,6 +163,9 @@ const Sidebar = ({
       {/* Footer */}
       <SidebarFooter style={{ textAlign: "center" }}>
         <p style={{ fontSize: "12px", marginTop: "10px" }}>{user.username}</p>
+        <p
+          style={{ fontSize: "12px", marginTop: "-10px" }}
+        >{`${user.cabang.id} - ${user.cabang.namaCabang}`}</p>
         <div className="sidebar-btn-wrapper" style={{ paddingBottom: "10px" }}>
           <Link
             className="sidebar-btn"

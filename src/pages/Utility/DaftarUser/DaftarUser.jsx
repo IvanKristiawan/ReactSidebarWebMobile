@@ -98,15 +98,39 @@ const DaftarUser = () => {
   };
 
   useEffect(() => {
-    getUsers();
+    if (user.tipeUser === "OWNER") {
+      getUsersPagination();
+    } else {
+      getUsersPaginationPerCabang();
+    }
     id && getUserById();
   }, [id, page, searchTerm]);
 
-  const getUsers = async () => {
+  const getUsersPagination = async () => {
     try {
       const response = await axios.post(
         `${tempUrl}/usersPagination?search_query=${searchTerm}&page=${page}&limit=${limit}`,
         {
+          tipeAdmin: user.tipeUser,
+          _id: user.id,
+          token: user.token,
+        }
+      );
+      setUser(response.data.users);
+      setPage(response.data.page);
+      setPages(response.data.totalPage);
+      setRows(response.data.totalRows);
+    } catch (err) {
+      setIsFetchError(true);
+    }
+  };
+
+  const getUsersPaginationPerCabang = async () => {
+    try {
+      const response = await axios.post(
+        `${tempUrl}/usersPaginationPerCabang?search_query=${searchTerm}&page=${page}&limit=${limit}`,
+        {
+          kodeCabang: user.cabang.id,
           tipeAdmin: user.tipeUser,
           _id: user.id,
           token: user.token,
@@ -180,7 +204,7 @@ const DaftarUser = () => {
         _id: user.id,
         token: user.token,
       });
-      getUsers();
+      setSearchTerm("");
 
       navigate("/daftarUser");
     } catch (error) {
@@ -305,7 +329,7 @@ const DaftarUser = () => {
           >
             CETAK
           </Button>
-          <table class="table" id="table">
+          <table class="styled-table" id="table" style={{ fontSize: "10px" }}>
             <thead>
               <tr>
                 <th>Username</th>
@@ -337,7 +361,12 @@ const DaftarUser = () => {
             EXCEL
           </Button>
         )}
-        <table ref={tableRef}>
+        <table
+          class="styled-table"
+          id="table"
+          style={{ fontSize: "10px" }}
+          ref={tableRef}
+        >
           {previewExcel && (
             <tbody>
               <tr>

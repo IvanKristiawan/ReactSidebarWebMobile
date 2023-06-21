@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useStateContext, tempUrl } from "../../contexts/ContextProvider";
 import { AuthContext } from "../../contexts/AuthContext";
+import { Loader } from "../../components";
 import { Container, Card, Button, Form } from "react-bootstrap";
 import { Snackbar, Alert } from "@mui/material";
 
@@ -10,6 +11,7 @@ function Login() {
   const { screenSize } = useStateContext();
   const [open, setOpen] = useState(false);
   const [validated, setValidated] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -17,7 +19,7 @@ function Login() {
   const { error, dispatch } = useContext(AuthContext);
 
   const cardContainer = {
-    width: screenSize >= 650 ? "23rem" : "18rem"
+    width: screenSize >= 650 ? "23rem" : "18rem",
   };
 
   const handleClose = (event, reason) => {
@@ -28,6 +30,7 @@ function Login() {
   };
 
   const handleClick = async (e) => {
+    setLoading(true);
     e.preventDefault();
     e.stopPropagation();
     const form = e.currentTarget;
@@ -36,17 +39,17 @@ function Login() {
       try {
         const res = await axios.post(`${tempUrl}/auth/login`, {
           username,
-          password
+          password,
         });
         const findSetting = await axios.post(`${tempUrl}/lastSetting`, {
           _id: res.data.details.id,
           token: res.data.details.token,
-          kodeCabang: res.data.details.cabangId
+          kodeCabang: res.data.details.cabangId,
         });
         dispatch({
           type: "LOGIN_SUCCESS",
           payload: res.data.details,
-          setting: findSetting.data
+          setting: findSetting.data,
         });
 
         navigate("/admin");
@@ -56,13 +59,18 @@ function Login() {
       }
     }
     setValidated(true);
+    setLoading(false);
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <Container
       style={{
         display: "flex",
-        justifyContent: "center"
+        justifyContent: "center",
       }}
     >
       <Card style={cardContainer}>
@@ -121,19 +129,19 @@ export default Login;
 
 const headerContainer = {
   fontWeight: 700,
-  textAlign: "center"
+  textAlign: "center",
 };
 
 const headerText = {
-  marginBottom: 1
+  marginBottom: 1,
 };
 
 const headerDetail = {
   fontSize: 12,
   fontWeight: 500,
-  color: "gray"
+  color: "gray",
 };
 
 const alertBox = {
-  width: "100%"
+  width: "100%",
 };

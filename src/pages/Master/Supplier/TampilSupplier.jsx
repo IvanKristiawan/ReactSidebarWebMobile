@@ -1,28 +1,21 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { tempUrl, useStateContext } from "../../../contexts/ContextProvider";
-import { ShowTableGantiPeriode } from "../../../components/ShowTable";
+import { ShowTableSupplier } from "../../../components/ShowTable";
 import { FetchErrorHandling } from "../../../components/FetchErrorHandling";
-import { SearchBar, Loader } from "../../../components";
+import { SearchBar, Loader, ButtonModifier } from "../../../components";
 import { Container, Form, Row, Col } from "react-bootstrap";
-import {
-  Box,
-  Pagination,
-  Button,
-  ButtonGroup,
-  Typography,
-} from "@mui/material";
+import { Box, Pagination, Button, ButtonGroup } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import DownloadIcon from "@mui/icons-material/Download";
 import PrintIcon from "@mui/icons-material/Print";
 
-const TampilGantiPeriode = () => {
+const TampilSupplier = () => {
   const tableRef = useRef(null);
   const { user, dispatch, setting } = useContext(AuthContext);
   const location = useLocation();
@@ -30,16 +23,18 @@ const TampilGantiPeriode = () => {
   const { screenSize } = useStateContext();
 
   const [isFetchError, setIsFetchError] = useState(false);
-  const [namaPeriode, setNamaPeriode] = useState("");
-  const [dariTanggal, setDariTanggal] = useState("");
-  const [sampaiTanggal, setSampaiTanggal] = useState("");
-
-  const [periodeReport, setPeriodeReport] = useState([]);
+  const [kodeSupplier, setKodeSupplier] = useState("");
+  const [namaSupplier, setNamaSupplier] = useState("");
+  const [alamatSupplier, setAlamatSupplier] = useState("");
+  const [kotaSupplier, setKotaSupplier] = useState("");
+  const [teleponSupplier, setTeleponSupplier] = useState("");
 
   const [previewPdf, setPreviewPdf] = useState(false);
   const [previewExcel, setPreviewExcel] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [periodes, setPeriodes] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [suppliersPagination, setSuppliersPagination] = useState([]);
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   let [page, setPage] = useState(0);
@@ -53,27 +48,27 @@ const TampilGantiPeriode = () => {
     setPage(p - 1);
   };
 
-  useEffect(() => {
-    getPeriodes();
-    id && getPeriodeById();
-  }, [id, page, searchTerm]);
-
   const searchData = (e) => {
     e.preventDefault();
     setPage(0);
     setSearchTerm(query);
   };
 
-  const getPeriodes = async () => {
+  useEffect(() => {
+    getSuppliersPagination();
+    id && getSupplierById();
+  }, [id, page, searchTerm]);
+
+  const getSuppliersPagination = async () => {
     try {
       const response = await axios.post(
-        `${tempUrl}/tutupPeriodesAsc?search_query=${searchTerm}&page=${page}&limit=${limit}`,
+        `${tempUrl}/suppliersPagination?search_query=${searchTerm}&page=${page}&limit=${limit}`,
         {
           _id: user.id,
           token: user.token,
         }
       );
-      setPeriodes(response.data.tempAllPeriode);
+      setSuppliersPagination(response.data.suppliers);
       setPage(response.data.page);
       setPages(response.data.totalPage);
       setRows(response.data.totalRows);
@@ -82,56 +77,61 @@ const TampilGantiPeriode = () => {
     }
   };
 
-  const getPeriodeReportData = async () => {
+  const getSuppliers = async () => {
+    setLoading(true);
     try {
-      const response = await axios.post(`${tempUrl}/tutupPeriodesOptions`, {
-        _id: user.id,
-        token: user.token,
-      });
-      setPeriodeReport(response.data);
-    } catch (err) {
-      setIsFetchError(true);
-    }
-  };
-
-  const getPeriodeById = async () => {
-    if (id) {
-      setLoading(true);
-      const response = await axios.post(`${tempUrl}/tutupPeriodes/${id}`, {
-        _id: user.id,
-        token: user.token,
-      });
-      setNamaPeriode(response.data.namaPeriode);
-      setDariTanggal(response.data.dariTanggal);
-      setSampaiTanggal(response.data.sampaiTanggal);
-      setLoading(false);
-    }
-  };
-
-  const gantiPeriode = async () => {
-    try {
-      const findSetting = await axios.post(`${tempUrl}/lastSetting`, {
+      const response = await axios.post(`${tempUrl}/suppliers`, {
         _id: user.id,
         token: user.token,
         kodeCabang: user.cabang.id,
       });
-      const gantiPeriodeUser = await axios.post(
-        `${tempUrl}/updateUserThenLogin/${user.id}`,
-        {
-          namaPeriode,
-          _id: user.id,
-          token: user.token,
-        }
-      );
-      console.log(gantiPeriodeUser.data.details);
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: gantiPeriodeUser.data.details,
-        setting: findSetting.data,
-      });
-    } catch (err) {
+      setSuppliers(response.data);
+    } catch (error) {
+      if (error.response.status == 401) {
+        dispatch({ type: "LOGOUT" });
+        navigate("/");
+      }
       setIsFetchError(true);
     }
+    setLoading(false);
+  };
+
+  const getSupplierById = async () => {
+    if (id) {
+      setLoading(true);
+      const response = await axios.post(`${tempUrl}/suppliers/${id}`, {
+        _id: user.id,
+        token: user.token,
+      });
+      setNamaSupplier(response.data.namaSupplier);
+      setKodeSupplier(response.data.kodeSupplier);
+      setAlamatSupplier(response.data.alamatSupplier);
+      setKotaSupplier(response.data.kotaSupplier);
+      setTeleponSupplier(response.data.teleponSupplier);
+      setLoading(false);
+    }
+  };
+
+  const deleteSupplier = async (id) => {
+    setLoading(true);
+    try {
+      await axios.post(`${tempUrl}/deleteSupplier/${id}`, {
+        _id: user.id,
+        token: user.token,
+      });
+      setSearchTerm("");
+      setNamaSupplier("");
+      setKodeSupplier("");
+      setAlamatSupplier("");
+      setKotaSupplier("");
+      setTeleponSupplier("");
+      navigate("/supplier");
+    } catch (error) {
+      if (error.response.data.message.includes("foreign key")) {
+        alert(`${namaSupplier} tidak bisa dihapus karena sudah ada data!`);
+      }
+    }
+    setLoading(false);
   };
 
   const downloadPdf = () => {
@@ -165,10 +165,10 @@ const TampilGantiPeriode = () => {
       });
     const doc = new jsPDF();
     doc.setFontSize(12);
-    doc.text(`${setting.namaDesa} - ${setting.kotaDesa}`, 15, 10);
-    doc.text(`${setting.alamatDesa}`, 15, 15);
+    doc.text(`${setting.namaPerusahaan} - ${setting.kotaPerusahaan}`, 15, 10);
+    doc.text(`${setting.alamatPerusahaan}`, 15, 15);
     doc.setFontSize(16);
-    doc.text(`Daftar Periode`, 90, 30);
+    doc.text(`Daftar Supplier`, 85, 30);
     doc.setFontSize(10);
     doc.text(
       `Dicetak Oleh: ${user.username} | Tanggal : ${current_date} | Jam : ${current_time}`,
@@ -183,22 +183,17 @@ const TampilGantiPeriode = () => {
         color: [0, 0, 0],
       },
     });
-    doc.save("daftarPeriode.pdf");
+    doc.save("daftarSupplier.pdf");
   };
 
   const { onDownload } = useDownloadExcel({
     currentTableRef: tableRef.current,
-    filename: "Periode",
-    sheet: "DaftarPeriode",
+    filename: "Supplier",
+    sheet: "DaftarSupplier",
   });
 
   const textRight = {
     textAlign: screenSize >= 650 && "right",
-  };
-
-  const textRightSmall = {
-    textAlign: screenSize >= 650 && "right",
-    fontSize: "13px",
   };
 
   if (loading) {
@@ -211,19 +206,16 @@ const TampilGantiPeriode = () => {
 
   return (
     <Container>
-      <h3>Utility</h3>
-      <h5 style={{ fontWeight: 400 }}>Daftar Periode</h5>
-      <Typography sx={subTitleText}>
-        Periode : {user.tutupperiode.namaPeriode}
-      </Typography>
+      <h3>Master</h3>
+      <h5 style={{ fontWeight: 400 }}>Daftar Supplier</h5>
       <Box sx={downloadButtons}>
         <ButtonGroup variant="outlined" color="secondary">
           <Button
             color="primary"
             startIcon={<SearchIcon />}
             onClick={() => {
+              getSuppliers();
               setPreviewPdf(!previewPdf);
-              getPeriodeReportData();
               setPreviewExcel(false);
             }}
           >
@@ -233,8 +225,8 @@ const TampilGantiPeriode = () => {
             color="secondary"
             startIcon={<SearchIcon />}
             onClick={() => {
+              getSuppliers();
               setPreviewExcel(!previewExcel);
-              getPeriodeReportData();
               setPreviewPdf(false);
             }}
           >
@@ -254,17 +246,21 @@ const TampilGantiPeriode = () => {
           <table class="styled-table" id="table" style={{ fontSize: "10px" }}>
             <thead>
               <tr>
+                <th>Kode</th>
                 <th>Nama</th>
-                <th>Dari Tanggal</th>
-                <th>Sampai Tanggal</th>
+                <th>Alamat</th>
+                <th>Kota</th>
+                <th>Telepon</th>
               </tr>
             </thead>
             <tbody>
-              {periodeReport.map((user, index) => (
+              {suppliers.map((user, index) => (
                 <tr key={user.id}>
-                  <td>{user.namaPeriode}</td>
-                  <td>{user.dariTanggal}</td>
-                  <td>{user.sampaiTanggal}</td>
+                  <td>{user.kodeSupplier}</td>
+                  <td>{user.namaSupplier}</td>
+                  <td>{user.alamatSupplier}</td>
+                  <td>{user.kotaSupplier}</td>
+                  <td>{user.teleponSupplier}</td>
                 </tr>
               ))}
             </tbody>
@@ -290,15 +286,19 @@ const TampilGantiPeriode = () => {
           {previewExcel && (
             <tbody>
               <tr>
+                <th>Kode</th>
                 <th>Nama</th>
-                <th>Dari Tanggal</th>
-                <th>Sampai Tanggal</th>
+                <th>Alamat</th>
+                <th>Kota</th>
+                <th>Telepon</th>
               </tr>
-              {periodeReport.map((user, index) => (
+              {suppliers.map((user, index) => (
                 <tr key={user.id}>
-                  <td>{user.namaPeriode}</td>
-                  <td>{user.dariTanggal}</td>
-                  <td>{user.sampaiTanggal}</td>
+                  <td>{user.kodeSupplier}</td>
+                  <td>{user.namaSupplier}</td>
+                  <td>{user.alamatSupplier}</td>
+                  <td>{user.kotaSupplier}</td>
+                  <td>{user.teleponSupplier}</td>
                 </tr>
               ))}
             </tbody>
@@ -306,20 +306,14 @@ const TampilGantiPeriode = () => {
         </table>
       </div>
       <Box sx={buttonModifierContainer}>
-        {id && (
-          <>
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ bgcolor: "success.light", textTransform: "none" }}
-              startIcon={<ChangeCircleIcon />}
-              size="small"
-              onClick={() => gantiPeriode()}
-            >
-              Ganti Periode
-            </Button>
-          </>
-        )}
+        <ButtonModifier
+          id={id}
+          kode={id}
+          addLink={`/supplier/tambahSupplier`}
+          editLink={`/supplier/${id}/edit`}
+          deleteUser={deleteSupplier}
+          nameUser={namaSupplier}
+        />
       </Box>
       {id && (
         <Container>
@@ -332,11 +326,11 @@ const TampilGantiPeriode = () => {
                   className="mb-3"
                   controlId="formPlaintextPassword"
                 >
-                  <Form.Label column sm="3" style={textRightSmall}>
-                    Nama Periode :
+                  <Form.Label column sm="3" style={textRight}>
+                    Kode :
                   </Form.Label>
                   <Col sm="9">
-                    <Form.Control value={namaPeriode} disabled readOnly />
+                    <Form.Control value={kodeSupplier} disabled readOnly />
                   </Col>
                 </Form.Group>
               </Col>
@@ -348,11 +342,11 @@ const TampilGantiPeriode = () => {
                   className="mb-3"
                   controlId="formPlaintextPassword"
                 >
-                  <Form.Label column sm="3" style={textRightSmall}>
-                    Dari Tanggal :
+                  <Form.Label column sm="3" style={textRight}>
+                    Nama :
                   </Form.Label>
                   <Col sm="9">
-                    <Form.Control value={dariTanggal} disabled readOnly />
+                    <Form.Control value={namaSupplier} disabled readOnly />
                   </Col>
                 </Form.Group>
               </Col>
@@ -364,11 +358,43 @@ const TampilGantiPeriode = () => {
                   className="mb-3"
                   controlId="formPlaintextPassword"
                 >
-                  <Form.Label column sm="3" style={textRightSmall}>
-                    Sampai Tanggal :
+                  <Form.Label column sm="3" style={textRight}>
+                    Alamat :
                   </Form.Label>
                   <Col sm="9">
-                    <Form.Control value={sampaiTanggal} disabled readOnly />
+                    <Form.Control value={alamatSupplier} disabled readOnly />
+                  </Col>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm={6}>
+                <Form.Group
+                  as={Row}
+                  className="mb-3"
+                  controlId="formPlaintextPassword"
+                >
+                  <Form.Label column sm="3" style={textRight}>
+                    Kota :
+                  </Form.Label>
+                  <Col sm="9">
+                    <Form.Control value={kotaSupplier} disabled readOnly />
+                  </Col>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col sm={6}>
+                <Form.Group
+                  as={Row}
+                  className="mb-3"
+                  controlId="formPlaintextPassword"
+                >
+                  <Form.Label column sm="3" style={textRight}>
+                    Telepon :
+                  </Form.Label>
+                  <Col sm="9">
+                    <Form.Control value={teleponSupplier} disabled readOnly />
                   </Col>
                 </Form.Group>
               </Col>
@@ -391,7 +417,7 @@ const TampilGantiPeriode = () => {
         </Box>
       </Form>
       <Box sx={tableContainer}>
-        <ShowTableGantiPeriode currentPosts={periodes} />
+        <ShowTableSupplier currentPosts={suppliersPagination} />
       </Box>
       <Box sx={tableContainer}>
         <Pagination
@@ -406,11 +432,7 @@ const TampilGantiPeriode = () => {
   );
 };
 
-export default TampilGantiPeriode;
-
-const subTitleText = {
-  fontWeight: "900",
-};
+export default TampilSupplier;
 
 const buttonModifierContainer = {
   mt: 4,
